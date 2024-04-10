@@ -29,7 +29,6 @@ const Page = async () => {
   }
 
   const rooms: TRoom[] = await fetchRooms()
-  console.log(rooms)
 
   return <div></div>
 }
