@@ -1,3 +1,18 @@
+import {
+  getCurrentAppoitmentStratDate,
+  getCurrentAppoitmentEndDate,
+  getCurrentOrganizer,
+} from '@/utils/utils'
+const daysOfWeek = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+]
+
 type TAppointments = {
   Subject: string
   Organizer: string
@@ -31,11 +46,11 @@ const Page = async () => {
   const rooms: TRoom[] = await fetchRooms()
 
   return (
-    <div className="p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+    <div className="p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-[1280px] mx-auto gap-5 cursor-pointer">
       {rooms.map((room, index) => (
         <div
           key={index}
-          className="p-3 rounded-lg relative overflow-hidden bg-zinc-800 hover:bg-zinc-700 transition-all min-h-32 shadow-lg shadow-black/50 hover:scale-110 hover:z-20"
+          className="p-3 flex flex-col max-w-96 w-full mx-auto gap-6 rounded-lg relative overflow-hidden bg-zinc-800 transition-all min-h-28 hover:shadow-md shadow-sm shadow-black/50 hover:scale-105 hover:z-20"
         >
           <div
             className={`w-full h-2 absolute left-0 top-0 z-10 ${
@@ -50,6 +65,25 @@ const Page = async () => {
               <h3 className="text-green-500">Open</h3>
             )}
           </div>
+          {room.Busy && (
+            <div className="w-full text-start flex flex-wrap justify-between gap-1 items-center">
+              <p className="text-lg font-medium">{getCurrentOrganizer(room)}</p>
+              <div className="flex justify-between items-center">
+                <p>
+                  {daysOfWeek[getCurrentAppoitmentStratDate(room).getDay()]}{' '}
+                  {getCurrentAppoitmentStratDate(room).getDate()},{' '}
+                  {getCurrentAppoitmentStratDate(room).getHours()}:
+                  {(
+                    '0' + getCurrentAppoitmentStratDate(room).getMinutes()
+                  ).slice(-2)}{' '}
+                  - {getCurrentAppoitmentEndDate(room).getHours()}:
+                  {('0' + getCurrentAppoitmentEndDate(room).getMinutes()).slice(
+                    -2
+                  )}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       ))}
     </div>
