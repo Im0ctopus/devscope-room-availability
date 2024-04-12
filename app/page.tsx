@@ -67,7 +67,7 @@ const Page = async () => {
                 <h3 className="text-green-500">Open</h3>
               )}
             </div>
-            {room.Appointments[0] && (
+            {room.Busy && (
               <div className="w-full text-start flex flex-wrap justify-between gap-1 items-center">
                 <p className="text-lg font-medium">
                   {getCurrentOrganizer(room)}
