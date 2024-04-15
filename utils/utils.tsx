@@ -33,8 +33,8 @@ export const getCurrentAppoitmentEndDate = (room: TRoom) => {
 
 export const getCurrentOrganizer = (room: TRoom) => {
   for (let currentAppoitment of room.Appointments) {
-    const startDate = new Date(currentAppoitment.Start)
-    if (startDate >= new Date()) return currentAppoitment.Organizer
+    const endDate = new Date(currentAppoitment.End)
+    if (endDate >= new Date()) return currentAppoitment.Organizer
   }
   return ''
 }
