@@ -94,7 +94,7 @@ const Pop = ({
                     return (
                       <div
                         className={`flex flex-wrap justify-between items-center gap-2 w-full p-2 rounded-lg ${
-                          index % 2 == 0 ? 'bg-inherit' : 'bg-zinc-900'
+                          index % 2 != 0 ? 'bg-inherit' : 'bg-zinc-900'
                         }`}
                         key={index}
                       >
