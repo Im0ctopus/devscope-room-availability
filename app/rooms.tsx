@@ -5,21 +5,20 @@ import Card from './card'
 import { useEffect, useState } from 'react'
 import { ChevronDown, X } from 'lucide-react'
 
-type TAppointments = {
-  Subject: string
-  Organizer: string
-  Start: number
-  End: number
-  Private: boolean
+type TWaiting = {
+  name: string
+  email: string
+  roomid: number
 }
 
 type TRoom = {
-  Roomlist: string
-  Name: string
-  RoomAlias: string
-  Email: string
-  Appointments: TAppointments[]
-  Busy: boolean
+  id: number
+  name: string
+  organizer: string
+  busy: boolean
+  busystart: number
+  busyend: number
+  waiting: TWaiting[]
 }
 
 type TStates = 'Busy' | 'Free' | 'All'
@@ -33,12 +32,12 @@ const Rooms = ({ rooms }: { rooms: TRoom[] }) => {
   const [stateOpen, setStateOpen] = useState<boolean>(false)
   useEffect(() => {
     let temp = rooms.filter((r) =>
-      r.Name.toLowerCase().includes(search.toLowerCase())
+      r.name.toLowerCase().includes(search.toLowerCase())
     )
-    if (state == 'Busy') temp = temp.filter((r) => r.Busy)
-    else if (state == 'Free') temp = temp.filter((r) => !r.Busy)
+    if (state == 'Busy') temp = temp.filter((r) => r.busy)
+    else if (state == 'Free') temp = temp.filter((r) => !r.busy)
     setFilteredRooms(temp)
-  }, [search, state])
+  }, [search, state, rooms])
 
   useEffect(() => {
     if (stateOpen) {
@@ -82,6 +81,7 @@ const Rooms = ({ rooms }: { rooms: TRoom[] }) => {
             <div className="absolute rounded-lg overflow-clip z-30 w-full bg-zinc-800 left-0 top-[110%] border border-zinc-500">
               {states.map((s, i) => (
                 <p
+                  key={i}
                   onClick={(e) => {
                     e.stopPropagation()
                     setState(s)
@@ -102,13 +102,20 @@ const Rooms = ({ rooms }: { rooms: TRoom[] }) => {
           ></div>
         )}
       </div>
-      <div className="p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filteredRooms.map((room, index) => (
-          <Pop key={index} room={room}>
-            <Card room={room} />
-          </Pop>
-        ))}
-      </div>
+      {filteredRooms.length > 0 ? (
+        <div className="p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredRooms.map((room, index) => (
+            <Pop key={index} room={room}>
+              <Card room={room} />
+            </Pop>
+          ))}
+        </div>
+      ) : (
+        <p className="py-20 w-full text-center text-lg font-medium">
+          Unfortunately, there are currently no rooms that match your selected
+          filters!
+        </p>
+      )}
     </>
   )
 }

@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const isProd = process.env.NODE_ENV === 'production'
+const nextConfig = {
+  assetPrefix: isProd
+    ? 'https://cdn.jsdelivr.net/gh/Im0ctopus/cdn-devscope-room@1.07'
+    : undefined,
+}
 
-export default nextConfig;
+export default nextConfig
