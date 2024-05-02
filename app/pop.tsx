@@ -11,6 +11,7 @@ const daysOfWeek = [
 ]
 
 type TWaiting = {
+  id: number
   name: string
   email: string
   roomid: number
@@ -26,9 +27,10 @@ type TRoom = {
   waiting: TWaiting[]
 }
 
-import { handleAddWaitingList } from '@/lib/serverFuncs'
+import { handleAddWaitingList, removeWaiting } from '@/lib/serverFuncs'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { useSession } from 'next-auth/react'
 
 const Pop = ({
   children,
@@ -37,24 +39,31 @@ const Pop = ({
   children: React.ReactNode
   room: TRoom
 }) => {
+  const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [isShowing, setIsShowing] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
 
   useEffect(() => {
-    if (isOpen) {
-      setIsShowing(true)
-      document.body.classList.add('overflow-hidden')
-    } else {
-      setTimeout(() => {
-        setIsShowing(false)
-        document.body.classList.remove('overflow-hidden')
-      }, 250)
+    setLoading(true)
+  }, [])
+
+  useEffect(() => {
+    if (loading) {
+      if (isOpen) {
+        setIsShowing(true)
+        document.body.classList.add('overflow-hidden')
+      } else {
+        setTimeout(() => {
+          setIsShowing(false)
+          document.body.classList.remove('overflow-hidden')
+        }, 250)
+      }
     }
-  }, [isOpen])
+  }, [isOpen, loading])
 
   const endDate = new Date(room.busyend)
   const startDate = new Date(room.busystart)
-
   return (
     <div>
       <div onClick={() => setIsOpen(true)}>{children}</div>
@@ -67,7 +76,7 @@ const Pop = ({
             }`}
           ></div>
           <div
-            className={`fixed flex flex-col gap-5 inset-0 m-auto p-5 w-fit h-fit bg-zinc-800 z-50 rounded-lg overflow-hidden ${
+            className={`fixed flex flex-col gap-5 inset-0 m-auto p-5 w-fit h-fit bg-zinc-800 z-50 rounded-lg overflow-hidden max-w-[80%] ${
               isOpen ? 'animate-pop' : 'animate-close_pop'
             }`}
           >
@@ -117,15 +126,20 @@ const Pop = ({
                         return (
                           <div
                             className={`flex flex-wrap justify-between items-center gap-2 w-full p-2 ${
+                              session?.user?.email == wait.email &&
+                              'text-green-400'
+                            } ${
                               index % 2 != 0 ? 'bg-zinc-950' : 'bg-zinc-900'
                             }`}
                             key={index}
                           >
                             <div className="flex justify-start items-center gap-3">
                               <p className="text-lg">{index + 1}.</p>
-                              <p className="text-lg">{wait.name}</p>
+                              <p className={`text-lg`}>{wait.name}</p>
                             </div>
-                            <p className="text-lg">{wait.email}</p>
+                            <div className="flex justify-center items-center gap-2">
+                              <p className="text-lg">{wait.email}</p>
+                            </div>
                           </div>
                         )
                       })}
@@ -139,27 +153,49 @@ const Pop = ({
                   </h1>
                 )}
                 <div className="w-full flex justify-center items-center">
-                  <button
-                    onClick={async () => {
-                      const res = await handleAddWaitingList(room)
-                      if (res == 0) {
-                        toast.error(
-                          'An error occurred while attempting to add you to the waiting list. Please try again later.'
-                        )
-                      } else if (res == 1) {
-                        toast.success(
-                          'You have been added to the waiting list. An email will be sent to you shortly.'
-                        )
-                      } else if (res == 2) {
-                        toast.warning(
-                          'You are already on the waiting list for this room.'
-                        )
-                      }
-                    }}
-                    className="px-2 py-1 rounded-lg bg-yellow-600 hover:bg-yellow-500 transition-all duration-300 text-lg font-medium"
-                  >
-                    Join Waiting List
-                  </button>
+                  {room.waiting.find((w) => w.email == session?.user?.email) ? (
+                    <>
+                      <button
+                        className="px-2 py-1 rounded-lg bg-red-500 hover:bg-red-600 transition-all duration-300 text-lg font-medium"
+                        onClick={async () => {
+                          const res = await removeWaiting(room)
+                          if (res == 0) {
+                            toast.error(
+                              'An error occurred while attempting to remove you to the waiting list. Please try again later.'
+                            )
+                          } else if (res == 1) {
+                            toast.success(
+                              'You have been removed from the waiting list.'
+                            )
+                          }
+                        }}
+                      >
+                        Leave Waiting List
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        const res = await handleAddWaitingList(room)
+                        if (res == 0) {
+                          toast.error(
+                            'An error occurred while attempting to add you to the waiting list. Please try again later.'
+                          )
+                        } else if (res == 1) {
+                          toast.success(
+                            "You're now on our waiting list. We'll notify you via email once the room becomes available for your reservation."
+                          )
+                        } else if (res == 2) {
+                          toast.warning(
+                            'You are already on the waiting list for this room.'
+                          )
+                        }
+                      }}
+                      className="px-2 py-1 rounded-lg bg-yellow-500 hover:bg-yellow-600 transition-all duration-300 text-lg font-medium"
+                    >
+                      Join Waiting List
+                    </button>
+                  )}
                 </div>
               </>
             ) : (

@@ -1,4 +1,5 @@
 type TWaiting = {
+  id: number
   name: string
   email: string
   roomid: number
@@ -45,7 +46,7 @@ const Card = ({ room }: { room: TRoom }) => {
       <div className="flex justify-between items-center px-3 w-full">
         <div className="w-20 h-16 overflow-clip flex justify-center items-center rounded-xl relative">
           <img
-            className="w-full h-full"
+            className="w-full h-full select-none"
             src={
               (process.env.NODE_ENV === 'production' ? process.env.CDN : '') +
               `/imgs/${room.name}.jpg`

@@ -1,8 +1,10 @@
 'use server'
 
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidateTag } from 'next/cache'
+import { getServerSession } from 'next-auth'
 
 type TWaiting = {
+  id: number
   name: string
   email: string
   roomid: number
@@ -18,17 +20,16 @@ type TRoom = {
   waiting: TWaiting[]
 }
 
-const email = 'zedatuga123@gmail.com'
-const name = 'Leo'
 export const handleAddWaitingList = async (room: TRoom) => {
+  const session = await getServerSession()
   // Verify if the user is already in the waiting list
-  if (room.waiting.some((w) => w.email == email)) {
+  if (room.waiting.some((w) => w.email == session?.user?.email)) {
     return 2
   }
 
   // Put the user into the waiting list
   const query = `mutation {  
-    waiting(email: "${email}", name: "${name}", roomid: ${room.id} ) { 
+    waiting(email: "${session?.user?.email}", name: "${session?.user?.name}", roomid: ${room.id} ) { 
     id 
     }
     }
@@ -49,4 +50,79 @@ export const handleAddWaitingList = async (room: TRoom) => {
     revalidateTag('rooms')
     return 1
   }
+}
+
+export const fetchRooms = async () => {
+  const query: string =
+    '{ rooms{ id, name, organizer, busy, busystart, busyend, waiting {id, name, email, roomid } } }'
+  const res = await fetch(process.env.API_LINK ?? '', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.API_TOKEN}`,
+    },
+    body: JSON.stringify({ query }),
+    next: { revalidate: 60, tags: ['rooms'] },
+  })
+
+  if (!res.ok) throw new Error('Erro a obter a informação da API')
+
+  const data = await res.json()
+  return data.data.rooms as TRoom[]
+}
+
+export const fetchRoomsApi = async () => {
+  const query: string =
+    '{ rooms{ id, name, organizer, busy, busystart, busyend, waiting {id, name, email, roomid } } }'
+  const res = await fetch(process.env.API_LINK ?? '', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.API_TOKEN}`,
+    },
+    body: JSON.stringify({ query }),
+    cache: 'no-cache',
+  })
+
+  if (!res.ok) throw new Error('Erro a obter a informação da API')
+
+  const data = await res.json()
+  return data.data.rooms as TRoom[]
+}
+
+export async function cancelRoom(roomid: number) {
+  const query = `mutation{cancel(roomid:${roomid}){id}}`
+  const res = await fetch(process.env.API_LINK ?? '', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.API_TOKEN}`,
+    },
+    body: JSON.stringify({ query }),
+    cache: 'no-cache',
+  })
+
+  if (!res.ok) throw new Error('Erro a obter a informação da API')
+}
+
+export async function removeWaiting(room: TRoom) {
+  const session = await getServerSession()
+  const wait = room.waiting.filter((w) => w.email == session?.user?.email)
+  if (!wait) return 0
+  const query = `mutation{remove(waitid:${wait[0].id}){id}}`
+  const res = await fetch(process.env.API_LINK ?? '', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.API_TOKEN}`,
+    },
+    body: JSON.stringify({ query }),
+    cache: 'no-cache',
+  })
+  if (!res.ok) {
+    console.log('Error Removing')
+    return 0
+  }
+  revalidateTag('rooms')
+  return 1
 }

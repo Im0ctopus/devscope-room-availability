@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { ChevronDown, X } from 'lucide-react'
 
 type TWaiting = {
+  id: number
   name: string
   email: string
   roomid: number
@@ -111,7 +112,7 @@ const Rooms = ({ rooms }: { rooms: TRoom[] }) => {
           ))}
         </div>
       ) : (
-        <p className="py-20 w-full text-center text-lg font-medium">
+        <p className="py-20 w-full px-10 text-center text-lg font-medium">
           Unfortunately, there are currently no rooms that match your selected
           filters!
         </p>

@@ -1,16 +1,28 @@
-import Image from 'next/image'
+import Autenticated from './autenticated'
+import Link from 'next/link'
 
 const Nav = () => {
   return (
-    <div className="flex justify-center items-center h-24 bg-black/10 w-full relative">
-      <h1 className="text-xl md:text-4xl font-black">Room Availability</h1>
-      <Image
-        className="absolute inset-y-0 my-auto left-5 rounded-md"
-        src="/logo.png"
-        width={70}
-        height={70}
-        alt="Devscope logo"
-      />
+    <div className="grid grid-cols-1 md:grid-cols-3 justify-between items-center min-h-24 bg-black/10 w-full px-8 py-8 flex-wrap gap-6">
+      <div className="flex justify-center items-center">
+        <img
+          draggable={false}
+          className="rounded-md select-none aspect-square w-20"
+          src={
+            (process.env.NODE_ENV === 'production' ? process.env.CDN : '') +
+            '/logos/logo.png'
+          }
+          alt="Devscope logo"
+        />
+      </div>
+      <Link
+        href={'/'}
+        draggable={false}
+        className="text-4xl font-black text-center"
+      >
+        Room Availability
+      </Link>
+      <Autenticated />
     </div>
   )
 }
