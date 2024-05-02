@@ -34,21 +34,25 @@ export const handleAddWaitingList = async (room: TRoom) => {
     }
     }
   `
+  try {
+    const res = await fetch(process.env.API_LINK ?? '', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.API_TOKEN}`,
+      },
+      body: JSON.stringify({ query }),
+      cache: 'no-cache',
+    })
 
-  const res = await fetch(process.env.API_LINK ?? '', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.API_TOKEN}`,
-    },
-    body: JSON.stringify({ query }),
-    cache: 'no-cache',
-  })
-
-  if (!res.ok) return 0
-  else {
-    revalidateTag('rooms')
-    return 1
+    if (!res.ok) return 0
+    else {
+      revalidateTag('rooms')
+      return 1
+    }
+  } catch {
+    console.log('ERROR adding to the waiting list')
+    return 0
   }
 }
 
@@ -110,19 +114,24 @@ export async function removeWaiting(room: TRoom) {
   const wait = room.waiting.filter((w) => w.email == session?.user?.email)
   if (!wait) return 0
   const query = `mutation{remove(waitid:${wait[0].id}){id}}`
-  const res = await fetch(process.env.API_LINK ?? '', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.API_TOKEN}`,
-    },
-    body: JSON.stringify({ query }),
-    cache: 'no-cache',
-  })
-  if (!res.ok) {
-    console.log('Error Removing')
+  try {
+    const res = await fetch(process.env.API_LINK ?? '', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.API_TOKEN}`,
+      },
+      body: JSON.stringify({ query }),
+      cache: 'no-cache',
+    })
+    if (!res.ok) {
+      console.log('Error Removing')
+      return 0
+    }
+    revalidateTag('rooms')
+    return 1
+  } catch {
+    console.log('ERROR removing to the waiting list')
     return 0
   }
-  revalidateTag('rooms')
-  return 1
 }
