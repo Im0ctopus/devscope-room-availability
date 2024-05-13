@@ -1,3 +1,5 @@
+const CDN = 'https://cdn.jsdelivr.net/gh/Im0ctopus/cdn-devscope-room@1.12' //Change on client side code change
+
 type TWaiting = {
   id: number
   name: string
@@ -48,7 +50,7 @@ const Card = ({ room }: { room: TRoom }) => {
           <img
             className="w-full h-full select-none"
             src={
-              (process.env.NODE_ENV === 'production' ? process.env.CDN : '') +
+              (process.env.NODE_ENV === 'production' ? CDN : '') +
               `/imgs/${room.name}.jpg`
             }
             alt={room.name}
