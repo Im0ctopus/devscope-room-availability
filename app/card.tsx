@@ -1,4 +1,4 @@
-const CDN = 'https://cdn.jsdelivr.net/gh/Im0ctopus/cdn-devscope-room@1.13' //Change on client side code change
+const CDN = 'https://cdn.jsdelivr.net/gh/Im0ctopus/cdn-devscope-room@1.15' //Change on client side code change
 
 type TWaiting = {
   id: number
@@ -29,7 +29,7 @@ const Card = ({ room }: { room: TRoom }) => {
         <h3>{room.name}</h3>
         {room.busy ? <h3 className="text-red-500">Busy</h3> : <h3 className="text-green-500">Open</h3>}
       </div>
-      <div className="flex justify-between items-center px-3 w-full">
+      <div className="flex justify-between items-center px-3 w-full flex-wrap gap-3">
         <div className="w-20 h-16 overflow-clip flex justify-center items-center rounded-xl relative">
           <img
             className="w-full h-full select-none"
@@ -37,22 +37,24 @@ const Card = ({ room }: { room: TRoom }) => {
             alt={room.name}
           />
         </div>
-        {room.busy && (
-          <div className="text-start flex flex-col flex-wrap justify-between gap-1 items-end">
-            <p className="text-lg font-medium">{room.organizer}</p>
-            <div className="flex gap-1 justify-center items-center">
-              <p>{daysOfWeek[startDate.getDay()]}</p>
-              <p>{startDate.getDate()},</p>
-              <p>
-                {startDate.getHours()}:{('0' + startDate.getMinutes()).slice(-2)}
-              </p>
-              <p>-</p>
-              <p>
-                {endDate.getHours()}:{('0' + endDate.getMinutes()).slice(-2)}
-              </p>
+        <div className="flex-grow">
+          {room.busy && (
+            <div className="text-start flex flex-col flex-wrap justify-between gap-1 items-end">
+              <p className="text-lg font-medium">{room.organizer}</p>
+              <div className="flex gap-1 justify-center items-center">
+                <p>{daysOfWeek[startDate.getDay()]}</p>
+                <p>{startDate.getDate()},</p>
+                <p>
+                  {startDate.getHours()}:{('0' + startDate.getMinutes()).slice(-2)}
+                </p>
+                <p>-</p>
+                <p>
+                  {endDate.getHours()}:{('0' + endDate.getMinutes()).slice(-2)}
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )
