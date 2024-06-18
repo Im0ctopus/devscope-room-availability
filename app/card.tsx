@@ -1,4 +1,4 @@
-const CDN = 'https://cdn.jsdelivr.net/gh/Im0ctopus/cdn-devscope-room@1.16' //Change on client side code change
+const CDN = 'https://cdn.jsdelivr.net/gh/Im0ctopus/cdn-devscope-room@1.17' //Change on client side code change
 
 type TWaiting = {
   id: number
